@@ -156,8 +156,15 @@ def _git_sparse_checkout(repo_url: str, ref: str, paths: list[str], dest_dir: st
                 repo_dir,
             ]
         )
-    _run_git(["git", "-C", repo_dir, "sparse-checkout", "set", *paths])
+    includes_repo_root = any(os.path.normpath(path) == "." for path in paths)
+    if includes_repo_root:
+        _run_git(["git", "-C", repo_dir, "sparse-checkout", "disable"])
+    else:
+        _run_git(["git", "-C", repo_dir, "sparse-checkout", "set", *paths])
     _run_git(["git", "-C", repo_dir, "checkout", ref])
+    if includes_repo_root:
+        # Do not install clone metadata as part of a repository-root skill.
+        shutil.rmtree(os.path.join(repo_dir, ".git"))
     return repo_dir
 
 

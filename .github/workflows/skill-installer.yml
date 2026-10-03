@@ -1,0 +1,25 @@
+name: Skill installer
+
+on:
+  push:
+    paths:
+      - 'skills/.system/skill-installer/scripts/**'
+      - '.github/workflows/skill-installer.yml'
+  pull_request:
+    paths:
+      - 'skills/.system/skill-installer/scripts/**'
+      - '.github/workflows/skill-installer.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  git-install:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Check root and nested skill installation with real Git
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
+        run: python3 skills/.system/skill-installer/scripts/test_install_skill_git.py -v
